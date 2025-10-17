@@ -8,10 +8,10 @@ import setuptools
 
 name = "bourdieuvectors"
 description = "BourdieuVectors library for inferring vectors"
-version = "0.1.0"
+version = "0.1.1"
 release_status = "Development Status :: 4 - Beta"
 dependencies = [
-    "tensorflow >= 2.6.0",
+    "requests",
 ]
 extras = {}
 
