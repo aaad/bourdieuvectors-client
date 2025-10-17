@@ -40,6 +40,7 @@ Example Usage
 Extends a Pandas DataFrame with the vectors.
 
 .. code:: python
+
     import pandas as pd
     from bourdieuvectors import get_bourdieu_vector
 
