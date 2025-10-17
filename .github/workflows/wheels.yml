@@ -1,6 +1,5 @@
 name: Build and upload to PyPI
 
-# To publish when a (published) GitHub Release is created, use the following:
 on:
   push:
   pull_request:
@@ -17,49 +16,80 @@ jobs:
         os: [ubuntu-latest, windows-2022, macos-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        name: Install Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.8"
 
-      - name: Build wheels
-        run: pipx run build
+      - name: Install build tools
+        run: pip install --upgrade pip build
 
-      - uses: actions/upload-artifact@v4
+      - name: Build wheel
+        run: python -m build --wheel --outdir dist
+
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
         with:
-          path: ./dist/*.whl
+          name: wheel-${{ matrix.os }}
+          path: dist/*.whl
+          overwrite: true
 
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
-        name: Install Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.8"
 
-      - name: Build sdist
-        run: python setup.py sdist
+      - name: Install build tools
+        run: pip install --upgrade pip build
 
-      - uses: actions/upload-artifact@v4
+      - name: Build sdist
+        run: python -m build --sdist --outdir dist
+
+      - name: Upload sdist artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: sdist
           path: dist/*.tar.gz
+          overwrite: true
+
   upload_pypi:
+    name: Upload to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
     if: github.event_name == 'release' && github.event.action == 'published'
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download sdist
+        uses: actions/download-artifact@v4
         with:
-          name: artifact
+          name: sdist
           path: dist
 
-      - uses: pypa/gh-action-pypi-publish@v1.10.3
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: wheel-ubuntu-latest
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel-windows-2022
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheel-macos-latest
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.10.3
         with:
           user: __token__
-          password: ${{ secrets.pypi_token }}
-          #repository_url: https://test.pypi.org/legacy/ # test
+          password: ${{ secrets.PYPI_TOKEN }}
