@@ -158,19 +158,16 @@ def get_bourdieu_vectors(
         with tqdm(total=len(futures), desc="Fetching Bourdieu vectors") as pbar:
             for f in as_completed(futures):
                 idx = futures[f]
-                try:
-                    vec, dim_names = f.result()
+                vec, dim_names = f.result()
 
-                    if len(vec) == 0:
-                        vec = [0.0] * len(embedding_dim_names)
-                    elif len(vec) != len(embedding_dim_names):
-                        raise Exception(
-                            f"Vector len should be {len(embedding_dim_names)}, is {len(vec)}"
-                        )
+                if len(vec) == 0:
+                    vec = [0.0] * len(embedding_dim_names)
+                elif len(vec) != len(embedding_dim_names):
+                    raise Exception(
+                        f"Vector len should be {len(embedding_dim_names)}, is {len(vec)}"
+                    )
 
-                    features[idx] = vec
-                except Exception as e:
-                    print(f"Error for {title[idx]}: {e}")
+                features[idx] = vec
                 pbar.update(1)
     return features, embedding_dim_names
 
