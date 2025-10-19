@@ -58,12 +58,26 @@ def get_bourdieu_vector(
     # Check if the request was successful
     if response.status_code == 200:
         # Return the vector from the API response
-        res = response.json()["vector"]
+        res = response.json()
+
+        res = {
+            r: res[r]
+            for r in res
+            if r
+            in [
+                "vector",
+                "cultural_event",
+                "cultural_event_language",
+                "model_name",
+                "model_version",
+                "cultural_event_language",
+            ]
+        }
 
         if use_cached:
             with open(cache_path, "w") as f:
-                json.dump({"vector": res}, f)
-        return res
+                json.dump(res, f)
+        return res["vector"]
     elif response.status_code == 503 and retries > 0:
         exception_text = f"Failed to fetch vector for event: {event_name} (status code: {response.status_code}) - {response.text} - Retry"
         time.sleep(3)

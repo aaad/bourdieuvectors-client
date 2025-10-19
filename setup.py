@@ -8,7 +8,7 @@ import setuptools
 
 name = "bourdieuvectors"
 description = "BourdieuVectors library for inferring vectors"
-version = "0.1.2"
+version = "0.1.3"
 release_status = "Development Status :: 4 - Beta"
 dependencies = ["requests", "tqdm"]
 extras = {}
